@@ -92,6 +92,14 @@
 			"Type": "DynamicLibrary"
 		},
 		{
+			"Path": "$(ProjectDir)/Plugins/LucidMovement/Binaries/Win64/UnrealEditor-LucidMovement.dll",
+			"Type": "DynamicLibrary"
+		},
+		{
+			"Path": "$(ProjectDir)/Plugins/LucidMovement/Binaries/Win64/UnrealEditor-LucidMovement.pdb",
+			"Type": "SymbolFile"
+		},
+		{
 			"Path": "$(EngineDir)/Plugins/2D/Paper2D/Binaries/Win64/UnrealEditor-Paper2D.dll",
 			"Type": "DynamicLibrary"
 		},
@@ -2360,6 +2368,10 @@
 			"Type": "RequiredResource"
 		},
 		{
+			"Path": "$(ProjectDir)/Plugins/LucidMovement/Binaries/Win64/UnrealEditor.modules",
+			"Type": "RequiredResource"
+		},
+		{
 			"Path": "$(EngineDir)/Plugins/2D/Paper2D/Binaries/Win64/UnrealEditor.modules",
 			"Type": "RequiredResource"
 		},
@@ -2823,6 +2835,10 @@
 		},
 		{
 			"Path": "$(EngineDir)/Plugins/Editor/BlueprintMaterialTextureNodes/BlueprintMaterialTextureNodes.uplugin",
+			"Type": "UFS"
+		},
+		{
+			"Path": "$(ProjectDir)/Plugins/LucidMovement/LucidMovement.uplugin",
 			"Type": "UFS"
 		},
 		{
