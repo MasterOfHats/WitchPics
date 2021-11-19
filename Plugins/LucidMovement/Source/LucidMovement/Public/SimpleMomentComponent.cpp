@@ -73,6 +73,7 @@ void USimplePawnMovement::TickComponent(float DeltaTime, ELevelTick TickType,
 		
 		bool bPreFloor = bTouchingFloor;
 		PerformFloorCheck();
+		AjustFloorDistAndOrientation();
 
 		if(bPreFloor != bTouchingFloor)
 		{
@@ -96,9 +97,9 @@ void USimplePawnMovement::PerformFloorCheck()
 		return;
 	}
 	
-	const float HeightCheckedAdjust = (2.4f + KINDA_SMALL_NUMBER);
+	const float HeightCheckedAdjust = (MaxFloorDistance + KINDA_SMALL_NUMBER);
 
-	float FloorSweepTraceDist = FMath::Max(2.4f, MaxStepHeight + HeightCheckedAdjust);
+	float FloorSweepTraceDist = FMath::Max(MaxFloorDistance, MaxStepHeight + HeightCheckedAdjust);
 	float FloorLineTraceDist = FloorSweepTraceDist;
 	bool bNeedToValidateFloor = true;
 
@@ -127,12 +128,13 @@ void USimplePawnMovement::PerformFloorCheck()
 
 		bBlockingHit = GetWorld()->SweepSingleByChannel(OutHit, Start, End, FQuat(FRotator(0,0,0)), CollisionChannel, CollisionShape, QueryParams, ResponseParam);
 
-
 		if(bBlockingHit)
 		{
 			float Angle = FMath::Abs(FMath::Acos(FVector::DotProduct(FVector(0,0,1), OutHit.Normal)));
 			Angle = FMath::RadiansToDegrees(Angle);
 
+			FloorHitLocation = OutHit.Location;
+			
 			if(Angle > FloorAngleTolerance)
 			{
 				bTouchingFloor = false;
@@ -142,12 +144,38 @@ void USimplePawnMovement::PerformFloorCheck()
 			}
 		} else
 		{
+			FloorHitLocation = FVector::ZeroVector;
 			bTouchingFloor = false;
 		}
-	
-	
-		
 	}
+}
+
+void USimplePawnMovement::AjustFloorDistAndOrientation()
+{
+	if(bTouchingFloor)
+	{
+		FVector Delta = GetActorLocation() - FloorHitLocation;
+		const FQuat Rotation = UpdatedComponent->GetComponentQuat();
+		MoveUpdatedComponent(Delta, Rotation, true);
+		if(!(PreviousFloorNormal == FVector::ZeroVector))
+		{
+			FQuat NormalDiff = FRotationMatrix::MakeFromX(PreviousFloorNormal).ToQuat() * FRotationMatrix::MakeFromX(CurrentFloorNormal).ToQuat().Inverse();
+			
+			FVector FloorVerti = FVector::DotProduct(Velocity, PreviousFloorNormal) * PreviousFloorNormal;
+			FVector FloorHori = Velocity - FloorVerti;
+
+			FloorHori = NormalDiff.RotateVector(FloorHori);
+
+			Velocity = FloorHori + FloorVerti;
+		} else
+		{
+			PreviousFloorNormal = CurrentFloorNormal;
+		}
+	} else
+	{
+		PreviousFloorNormal = FVector::ZeroVector;
+	}
+
 }
 
 bool USimplePawnMovement::IsExceedingMaxSpeed(float MaxSpeed) const

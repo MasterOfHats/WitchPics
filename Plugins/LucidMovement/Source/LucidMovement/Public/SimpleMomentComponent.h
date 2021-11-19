@@ -27,6 +27,7 @@ class LUCIDMOVEMENT_API USimplePawnMovement : public UPawnMovementComponent
 	protected:
 	virtual bool ResolvePenetrationImpl(const FVector& Adjustment, const FHitResult& Hit, const FQuat& NewRotation) override;
 	virtual void PerformFloorCheck();
+	virtual void AjustFloorDistAndOrientation();
 
 	public:
 	UPROPERTY(BlueprintAssignable, Category = SimplePawnMovement)
@@ -76,6 +77,9 @@ class LUCIDMOVEMENT_API USimplePawnMovement : public UPawnMovementComponent
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=SimplePawnMovement)
 	float FrictionDecay = 8.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=SimplePawnMovement)
+	float MaxFloorDistance = 2.4f;
 	
 	
 	UPROPERTY(BlueprintReadOnly, Category=SimplePawnMovement)
@@ -87,9 +91,15 @@ class LUCIDMOVEMENT_API USimplePawnMovement : public UPawnMovementComponent
 	virtual FVector CorrectVelocity(FVector InputVelocity);
 
 	virtual bool LimitWorldBounds();
-
+	
 	UPROPERTY(Transient)
 	uint32 bPositionCorrected:1;
+
+	private:
+	FVector FloorHitLocation;
+
+	FVector PreviousFloorNormal;
+	FVector CurrentFloorNormal;
 
 	
 };
